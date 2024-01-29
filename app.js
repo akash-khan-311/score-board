@@ -2,6 +2,7 @@
 const addMatchBtn = document.getElementById("add-match-btn");
 const allMatchContainers = document.getElementById("all-match-containers");
 const resetBtn = document.getElementById("reset-btn");
+const totalField = document.getElementById("total-field");
 
 const INCREMENT = "increment";
 const DECREMENT = "decrement";
@@ -23,13 +24,12 @@ const decrement = (value, matchId) => {
   };
 };
 
-
 // Reset Action
-const reset = ()=> {
-    return {
-        type: RESET,
-    }
-}
+const reset = () => {
+  return {
+    type: RESET,
+  };
+};
 
 // Initial State
 const initialState = {
@@ -38,8 +38,10 @@ const initialState = {
 
 // Sum Reducer
 const sumReducer = (state = initialState, action) => {
+  const totalValue = parseFloat(totalField.innerText);
   if (action.type === INCREMENT) {
     const { value, matchId } = action.payload;
+
     return {
       ...state,
       matches: state.matches.map((match) =>
@@ -48,12 +50,18 @@ const sumReducer = (state = initialState, action) => {
     };
   } else if (action.type === DECREMENT) {
     const { value, matchId } = action.payload;
-    return {
-      ...state,
-      matches: state.matches.map((match) =>
-        match.id === matchId ? { ...match, value: match.value - value } : match
-      ),
-    };
+    if (value > totalValue) {
+        alert("This number grater than total score");
+        return state
+    }else {
+        return {
+            ...state,
+            matches: state.matches.map((match) =>
+              match.id === matchId ? { ...match, value: match.value - value } : match
+            ),
+          };
+    }
+  
   } else if (action.type === "ADD_MATCH") {
     return {
       ...state,
@@ -110,14 +118,14 @@ store.subscribe(render);
 
 // Add Match Handler
 addMatchBtn.addEventListener("click", () => {
-    const currentState = store.getState();
-    const newMatch = {
-      id: currentState.matches.length + 1,
-      name: `Match ${currentState.matches.length + 1}`,
-      value: 0,
-    };
-    store.dispatch({ type: "ADD_MATCH", payload: newMatch });
-  });
+  const currentState = store.getState();
+  const newMatch = {
+    id: currentState.matches.length + 1,
+    name: `Match ${currentState.matches.length + 1}`,
+    value: 0,
+  };
+  store.dispatch({ type: "ADD_MATCH", payload: newMatch });
+});
 
 // Increment Handler
 const incrementHandler = (event, matchId) => {
@@ -138,6 +146,6 @@ const decrementHandler = (event, matchId) => {
   }
 };
 // State Reset Handler
-resetBtn.addEventListener('click', ()=> {
-    store.dispatch(reset())
-})
+resetBtn.addEventListener("click", () => {
+  store.dispatch(reset());
+});
