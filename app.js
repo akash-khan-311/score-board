@@ -38,9 +38,12 @@ const initialState = {
 
 // Sum Reducer
 const sumReducer = (state = initialState, action) => {
-  const totalValue = parseFloat(totalField.innerText);
   if (action.type === INCREMENT) {
     const { value, matchId } = action.payload;
+    if (isNaN(value)) {
+      alert("please input a number");
+      return state;
+    }
 
     return {
       ...state,
@@ -50,18 +53,30 @@ const sumReducer = (state = initialState, action) => {
     };
   } else if (action.type === DECREMENT) {
     const { value, matchId } = action.payload;
-    if (value > totalValue) {
-        alert("This number grater than total score");
-        return state
-    }else {
-        return {
-            ...state,
-            matches: state.matches.map((match) =>
-              match.id === matchId ? { ...match, value: match.value - value } : match
-            ),
-          };
+
+    const totalValue = state.matches.reduce(
+      (total, match) => total + match.value,
+      0
+    );
+
+    if(isNaN (value)){
+      alert('please input a number')
+      return state;
     }
-  
+
+    if (value > totalValue) {
+      alert("This number grater than total score");
+      return state;
+    } else {
+      return {
+        ...state,
+        matches: state.matches.map((match) =>
+          match.id === matchId
+            ? { ...match, value: match.value - value }
+            : match
+        ),
+      };
+    }
   } else if (action.type === "ADD_MATCH") {
     return {
       ...state,
@@ -79,6 +94,12 @@ const sumReducer = (state = initialState, action) => {
 
 // Create Store
 const store = Redux.createStore(sumReducer);
+
+// const getTotalValue = () => {
+//   const state = store.getState();
+//   const totalValue = state.matches.reduce((total, match) => total + match.value, 0);
+//   return totalValue;
+// };
 
 const render = () => {
   const state = store.getState();
@@ -105,7 +126,7 @@ const render = () => {
                 </form>
             </div>
             <div class="numbers">
-                <h2 class="lws-singleResult">${match.value}</h2>
+                <h2 id="total-field" class="lws-singleResult">${match.value}</h2>
             </div>
         `;
 
